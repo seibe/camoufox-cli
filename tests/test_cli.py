@@ -87,6 +87,38 @@ class TestBuildCommand:
         cmd = build_command("press", ["press", "Enter"])
         assert cmd["params"]["key"] == "Enter"
 
+    # --- Upload ---
+    def test_upload_basic(self):
+        cmd = build_command("upload", ["upload", "@e1", "/tmp/photo.jpg"])
+        assert cmd["action"] == "upload"
+        assert cmd["params"]["selector"] == "@e1"
+        assert cmd["params"]["path"].endswith("photo.jpg")
+        assert "trigger_selector" not in cmd["params"]
+
+    def test_upload_trigger(self):
+        cmd = build_command("upload", ["upload", "--trigger", "button.upload", "/tmp/photo.jpg"])
+        assert cmd["params"]["trigger_selector"] == "button.upload"
+        assert cmd["params"]["path"].endswith("photo.jpg")
+        assert "selector" not in cmd["params"]
+
+    def test_upload_trigger_force(self):
+        cmd = build_command("upload", ["upload", "--trigger", "--force", "button.upload", "/tmp/photo.jpg"])
+        assert cmd["params"]["trigger_selector"] == "button.upload"
+        assert cmd["params"]["force"] is True
+
+    def test_upload_multiple_files(self):
+        cmd = build_command("upload", ["upload", "@e1", "/tmp/a.jpg", "/tmp/b.jpg"])
+        assert isinstance(cmd["params"]["path"], list)
+        assert len(cmd["params"]["path"]) == 2
+
+    def test_upload_missing_args(self):
+        with pytest.raises(SystemExit):
+            build_command("upload", ["upload"])
+
+    def test_upload_missing_file(self):
+        with pytest.raises(SystemExit):
+            build_command("upload", ["upload", "@e1"])
+
     # --- Data extraction ---
     def test_text(self):
         cmd = build_command("text", ["text", "@e1"])

@@ -77,6 +77,21 @@ class TestCommandValidation:
         assert resp["success"] is False
         assert "key" in resp["error"].lower()
 
+    def test_upload_missing_path(self):
+        resp = execute(self.manager, {"id": "r1", "action": "upload", "params": {"selector": "input"}})
+        assert resp["success"] is False
+        assert "path" in resp["error"].lower()
+
+    def test_upload_missing_selector(self):
+        resp = execute(self.manager, {"id": "r1", "action": "upload", "params": {"path": "/tmp/a.jpg"}})
+        assert resp["success"] is False
+        assert "selector" in resp["error"].lower()
+
+    def test_add_init_script_missing_script(self):
+        resp = execute(self.manager, {"id": "r1", "action": "add_init_script", "params": {}})
+        assert resp["success"] is False
+        assert "script" in resp["error"].lower()
+
     def test_text_missing_target(self):
         resp = execute(self.manager, {"id": "r1", "action": "text", "params": {}})
         assert resp["success"] is False
